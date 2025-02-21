@@ -43,6 +43,13 @@ app.get('/tasks',async(req,res)=>{
     res.send(result)
 })
 
+app.get('/tasks/:id',async(req,res)=>{
+    const id = req.params.id
+    const query = { _id: new ObjectId(id) }
+    const result = await TaskDatabace.findOne(query)
+    res.send(result)
+})
+
 app.post('/tasks',async(req,res)=>{
     const tasks = req.body
     const result = await TaskDatabace.insertOne(tasks)
@@ -55,6 +62,16 @@ app.post('/tasks',async(req,res)=>{
     const result = await TaskDatabace.deleteOne(query)
     res.send(result)
   })
+  app.put('/tasks/:id', async (req, res) => {
+    const id = req.params.id;
+    const updatedTask = req.body; 
+    const query = { _id: new ObjectId(id) };
+    const update = {
+      $set: updatedTask, 
+    };
+    const result = await TaskDatabace.updateOne(query, update);
+    res.send(result);
+  });
 
 
     // Send a ping to confirm a successful connection
