@@ -8,7 +8,7 @@ const { WebSocketServer } = require("ws");
 app.use(cors());
 app.use(express.json());
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.S3_BUCKET}:${process.env.SECRET_KEY}@cluster0.ig6ro.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -42,6 +42,19 @@ app.get('/tasks',async(req,res)=>{
     const result = await TaskDatabace.find().toArray()
     res.send(result)
 })
+
+app.post('/tasks',async(req,res)=>{
+    const tasks = req.body
+    const result = await TaskDatabace.insertOne(tasks)
+    res.send(result)
+  
+  })
+  app.delete('/tasks/:id',async(req,res)=>{
+    const id = req.params.id
+    const query = { _id: new ObjectId(id) }
+    const result = await TaskDatabace.deleteOne(query)
+    res.send(result)
+  })
 
 
     // Send a ping to confirm a successful connection
