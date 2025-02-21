@@ -3,7 +3,7 @@ const app = express()
 const port = process.env.PORT || 5000;
 const cors = require("cors");
 require("dotenv").config();
-const { WebSocketServer } = require("ws");
+
 
 app.use(cors());
 app.use(express.json());
@@ -27,17 +27,7 @@ async function run() {
 
     const TaskDatabace = client.db("taskFlow-Db").collection("task-db");
 
-    // WebSocket Setup
-const wss = new WebSocketServer({ noServer: true });
-
-wss.on("connection", (ws) => {
-  console.log("🔗 WebSocket Connected");
-
-  ws.on("close", () => {
-    console.log("❌ WebSocket Disconnected");
-  });
-});
-
+    
 app.get('/tasks',async(req,res)=>{
     const result = await TaskDatabace.find().toArray()
     res.send(result)
@@ -62,6 +52,16 @@ app.post('/tasks',async(req,res)=>{
     const result = await TaskDatabace.deleteOne(query)
     res.send(result)
   })
+  app.put('/tasks/:id', async (req, res) => {
+    const id = req.params.id;
+    const updatedTask = req.body; 
+    const query = { _id: new ObjectId(id) };
+    const update = {
+      $set: updatedTask, 
+    };
+    const result = await TaskDatabace.updateOne(query, update);
+    res.send(result);
+  });
   app.put('/tasks/:id', async (req, res) => {
     const id = req.params.id;
     const updatedTask = req.body; 
