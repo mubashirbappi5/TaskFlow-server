@@ -26,12 +26,33 @@ async function run() {
     // await client.connect();
 
     const TaskDatabace = client.db("taskFlow-Db").collection("task-db");
+    const UserDatabace = client.db("taskFlow-Db").collection("users-db");
 
-    
-app.get('/tasks',async(req,res)=>{
-    const result = await TaskDatabace.find().toArray()
-    res.send(result)
+   
+    app.post('/users',async(req,res)=>{
+      const userData = req.body
+      const query = {UserEmail:userData?.UserEmail}
+      const existinguser = await UserDatabace.findOne(query)
+      
+      if(existinguser){
+        return res.send ({message:'User All ready exist'})
+      }
+      const result = await UserDatabace.insertOne(userData)
+      res.send(result)
+    })
+
+app.get('/users',async(req,res)=>{
+  const result= await UserDatabace.find().toArray()
+  res.send(result)
 })
+app.get("/tasks/user/:UserId", async (req, res) => {
+  const UserId = req.params.UserId;
+  const query = { UserId: UserId }; 
+  const result = await TaskDatabace.find(query).toArray();
+  res.send(result);
+});
+
+
 
 app.get('/tasks/:id',async(req,res)=>{
     const id = req.params.id
@@ -52,7 +73,7 @@ app.post('/tasks',async(req,res)=>{
     const result = await TaskDatabace.deleteOne(query)
     res.send(result)
   })
-  app.put('/tasks/:id', async (req, res) => {
+  app.patch('/tasks/:id', async (req, res) => {
     const id = req.params.id;
     const updatedTask = req.body; 
     const query = { _id: new ObjectId(id) };
@@ -62,16 +83,7 @@ app.post('/tasks',async(req,res)=>{
     const result = await TaskDatabace.updateOne(query, update);
     res.send(result);
   });
-  app.put('/tasks/:id', async (req, res) => {
-    const id = req.params.id;
-    const updatedTask = req.body; 
-    const query = { _id: new ObjectId(id) };
-    const update = {
-      $set: updatedTask, 
-    };
-    const result = await TaskDatabace.updateOne(query, update);
-    res.send(result);
-  });
+  
 
 
     // Send a ping to confirm a successful connection
